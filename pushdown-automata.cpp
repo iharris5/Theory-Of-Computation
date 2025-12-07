@@ -19,9 +19,8 @@ bool isEmpty(char c) { return c == '#'; }
 string stackAsString(stack<char> st) {
 	string s;
 	while (!st.empty()) {
-		char c = st.top();
+		s = st.top() + s;
 		st.pop();
-		s += c;
 	}
 	reverse(s.begin(), s.end());
 	return s.empty() ? "e" : s;
@@ -38,28 +37,36 @@ int main() {
 	int step = 0;
 	int ip = 0;
 
+	auto getUnread = [&](int ipSnapshot) -> string {
+        	if (ipSnapshot >= userInput.size() - 1) return "e";
+        	return userInput.substr(ipSnapshot);
+    	};
+
+
 	cout << left << setw(6) << "Step" << setw(8) << "State" << setw(15) << "Unread" << setw(10) << "Stack" << setw(12) << "Δ Used" << "R Used" << "\n";
 
-	auto rowPrint = [&](int step, string stt, string unread, stack<char> stk, string d, string r) {
+	auto rowPrint = [&](int step, string stt, stack<char> stk, string d, string r, int ipSnapshot) {
+		string unread = getUnread(ipSnapshot);
 		cout << left << setw(6) << step << setw(8) << stt << setw(15) << unread << setw(10) << stackAsString(stk) << setw(12) << d << r << "\n";
 	};
 
-	rowPrint(step++, state, userInput, st, "--", "");
+	rowPrint(step++, state, st, "--", "", ip);
 
 	while (true) {
 		char a = userInput[ip];
 		char X = st.empty() ? 'e' : st.top();
+		int ipSnapshot = ip;
 
 		if (state == "p" && st.empty()) {
 			state = "q";
 			st.push('S');
-			rowPrint(step++, state, userInput.substr(ip), st, "1", "");
+			rowPrint(step++, state, st, "1", "", ip);
 			continue;
 		}
 
 		if (state == "q" && a == 'a') {
 			state = "qa";
-			rowPrint(step++, state, userInput.substr(ip), st, "2", "");
+			rowPrint(step++, state, st, "2", "", ip + 1);
 			continue;
 		}
 
@@ -68,27 +75,27 @@ int main() {
                         st.push('b');
                         st.push('S');
                         st.push('a');
-                        rowPrint(step++, state, userInput.substr(ip), st, "7", "S -> aSb");
+                        rowPrint(step++, state, st, "7", "S -> aSb", ip + 1);
                         continue;
                 }
 	
 		if ((state == "q" || state == "qa") && X == 'a' && a == 'a') {
                         st.pop();
                         ip++;
-                        rowPrint(step++, state, userInput.substr(ip), st, "3", "");
-			if(state=="qa") state="q";
+			if (state == "qa") state = "q";
+                        rowPrint(step++, state, st, "3", "", ip);
                         continue;
                 }
 
 		if (state == "q" && a == 'b') {
 			state = "qb";
-			rowPrint(step++, state, userInput.substr(ip), st, "4", "");
+			rowPrint(step++, state, st, "4", "", ip + 1);
 			continue;
 		}
 
  		if (X == 'S' && (a == 'b' || a == '$')) {
                         st.pop();
-                        rowPrint(step++, state, userInput.substr(ip), st, "8", "S -> e");
+                        rowPrint(step++, state, st, "8", "S -> e", ip);
                         continue;
                 }
 
@@ -96,13 +103,13 @@ int main() {
 			st.pop();
 			ip++;
 			if(state == "qb") state = "q";
-			rowPrint(step++, state, userInput.substr(ip), st, "5", "");
+			rowPrint(step++, state, st, "5", "", ip);
 			continue;
 		}
 
 		if (state == "q" && a == '$' && st.empty()) {
 			state = "q$";
-			rowPrint(step++, state, userInput.substr(ip), st, "6", "");
+			rowPrint(step++, state, st, "6", "", ip);
 			break;
 		}
 
