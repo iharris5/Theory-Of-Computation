@@ -38,24 +38,23 @@ int main() {
 	int ip = 0;
 
 	auto getUnread = [&](int ipSnapshot) -> string {
-        	if (ipSnapshot >= userInput.size() - 1) return "e";
-        	return userInput.substr(ipSnapshot);
+        	if (ipSnapshot >= userInput.size()) return "e"; 
+        	string unread = userInput.substr(ipSnapshot);
+		return (unread == "$") ? "e" : unread;
     	};
 
-
-	cout << left << setw(6) << "Step" << setw(8) << "State" << setw(15) << "Unread" << setw(10) << "Stack" << setw(12) << "Δ Used" << "R Used" << "\n";
-
 	auto rowPrint = [&](int step, string stt, stack<char> stk, string d, string r, int ipSnapshot) {
-		string unread = getUnread(ipSnapshot);
-		cout << left << setw(6) << step << setw(8) << stt << setw(15) << unread << setw(10) << stackAsString(stk) << setw(12) << d << r << "\n";
+		cout << left << setw(6) << step << setw(8) << stt << setw(15) << getUnread(ipSnapshot) << setw(10) << stackAsString(stk) << setw(12) << d << r << "\n";
 	};
+
+	cout << left << setw(6) << "Step" << setw(8) << "State" << setw(15)
+         << "Unread Input" << setw(10) << "Stack" << setw(12) << "Δ Used" << "R Used" << "\n";
 
 	rowPrint(step++, state, st, "--", "", ip);
 
 	while (true) {
 		char a = userInput[ip];
 		char X = st.empty() ? 'e' : st.top();
-		int ipSnapshot = ip;
 
 		if (state == "p" && st.empty()) {
 			state = "q";
@@ -66,7 +65,7 @@ int main() {
 
 		if (state == "q" && a == 'a') {
 			state = "qa";
-			rowPrint(step++, state, st, "2", "", ip + 1);
+			rowPrint(step++, state, st, "2", "", ip);
 			continue;
 		}
 
@@ -75,7 +74,7 @@ int main() {
                         st.push('b');
                         st.push('S');
                         st.push('a');
-                        rowPrint(step++, state, st, "7", "S -> aSb", ip + 1);
+                        rowPrint(step++, state, st, "7", "S -> aSb", ip);
                         continue;
                 }
 	
@@ -89,7 +88,7 @@ int main() {
 
 		if (state == "q" && a == 'b') {
 			state = "qb";
-			rowPrint(step++, state, st, "4", "", ip + 1);
+			rowPrint(step++, state, st, "4", "", ip);
 			continue;
 		}
 
